@@ -44,11 +44,29 @@ if(process.env.NODE_ENV === 'test') {
 }else if (dbtype == 'sqlite3') {
   dbconfig.connection.filename = nconf.get('database:file');
 } else if (dbtype == 'mysql') {
+  dbconfig.client = 'mysql2';
   dbconfig.connection.host = nconf.get('database:server');
   dbconfig.connection.port = nconf.get('database:port');
   dbconfig.connection.user = nconf.get('database:username');
   dbconfig.connection.password = nconf.get('database:password');
   dbconfig.connection.database = nconf.get('database:database');
+  
+  // Support both authentication methods
+  const authMethod = nconf.get('database:auth_method') || 'default';
+  if (authMethod === 'mysql_native_password') {
+    dbconfig.connection.authPlugins = {
+      mysql_native_password: () => () => {
+        return require('mysql2/lib/auth_plugins/mysql_native_password');
+      }
+    };
+  }
+  
+  // Add support for SSL if configured
+  if (nconf.get('database:ssl')) {
+    dbconfig.connection.ssl = {
+      rejectUnauthorized: true
+    };
+  }
 } else if (dbtype == 'oracledb') {
   dbconfig.connection.connectString = nconf.get('database:connectString');
   dbconfig.connection.user = nconf.get('database:username');

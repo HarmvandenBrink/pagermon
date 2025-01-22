@@ -13,7 +13,14 @@
   "database": {
     "file": "./messages.db",
     "type": "sqlite3",
-    "aliasRefreshInterval": "0 5,35 * * * *"
+    "aliasRefreshInterval": "0 5,35 * * * *",
+    "auth_method": "default",
+    "server": "",
+    "port": 3306,
+    "username": "",
+    "password": "",
+    "database": "",
+    "ssl": false
   },
   "messages": {
     "maxLimit": 120,
