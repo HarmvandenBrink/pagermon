@@ -15,6 +15,7 @@
     "type": "sqlite3",
     "aliasRefreshInterval": "0 5,35 * * * *",
     "auth_method": "default",
+    "auth_method_comment": "Supported values: default, mysql_native_password, sha256_password, caching_sha2_password",
     "server": "",
     "port": 3306,
     "username": "",

@@ -51,12 +51,24 @@ if(process.env.NODE_ENV === 'test') {
   dbconfig.connection.password = nconf.get('database:password');
   dbconfig.connection.database = nconf.get('database:database');
   
-  // Support both authentication methods
+  // Support different authentication methods
   const authMethod = nconf.get('database:auth_method') || 'default';
   if (authMethod === 'mysql_native_password') {
     dbconfig.connection.authPlugins = {
-      mysql_native_password: () => () => {
+      mysql_native_password: () => {
         return require('mysql2/lib/auth_plugins/mysql_native_password');
+      }
+    };
+  } else if (authMethod === 'sha256_password') {
+    dbconfig.connection.authPlugins = {
+      sha256_password: () => {
+        return require('mysql2/lib/auth_plugins/sha256_password');
+      }
+    };
+  } else if (authMethod === 'caching_sha2_password') {
+    dbconfig.connection.authPlugins = {
+      caching_sha2_password: () => {
+        return require('mysql2/lib/auth_plugins/caching_sha2_password');
       }
     };
   }
@@ -67,6 +79,17 @@ if(process.env.NODE_ENV === 'test') {
       rejectUnauthorized: true
     };
   }
+
+  // Add connection pool configuration for better performance
+  dbconfig.pool = {
+    min: 2,
+    max: 10,
+    createTimeoutMillis: 3000,
+    acquireTimeoutMillis: 30000,
+    idleTimeoutMillis: 30000,
+    reapIntervalMillis: 1000,
+    createRetryIntervalMillis: 100
+  };
 } else if (dbtype == 'oracledb') {
   dbconfig.connection.connectString = nconf.get('database:connectString');
   dbconfig.connection.user = nconf.get('database:username');
